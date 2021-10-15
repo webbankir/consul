@@ -1,7 +1,7 @@
 import './style.css'
 import '@hashicorp/platform-util/nprogress/style.css'
 
-import useFathomAnalytics from '@hashicorp/platform-analytics'
+// import useFathomAnalytics from '@hashicorp/platform-analytics'
 import Router from 'next/router'
 import Head from 'next/head'
 import NProgress from '@hashicorp/platform-util/nprogress'
@@ -22,7 +22,7 @@ const { ConsentManager, openConsentManager } = createConsentManager({
 })
 
 export default function App({ Component, pageProps }) {
-  useFathomAnalytics()
+  // useFathomAnalytics()
   useAnchorLinkAnalytics()
 
   return (
