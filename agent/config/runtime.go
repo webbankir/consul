@@ -395,6 +395,10 @@ type RuntimeConfig struct {
 	// hcl: cert_file = string
 	CertFile string
 
+	// TLSAutoReload controls whether Consul will automatically reload its certs
+	// if they change on disk.
+	TLSAutoReload bool
+
 	// CheckUpdateInterval controls the interval on which the output of a health check
 	// is updated if there is no change to the state. For example, a check in a steady
 	// state may run every 5 second generating a unique output (timestamp, etc), forcing

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/armon/go-metrics"
 	"github.com/armon/go-metrics/prometheus"
+	"github.com/fsnotify/fsnotify"
 	"github.com/hashicorp/go-connlimit"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-memdb"
@@ -623,6 +625,53 @@ func (a *Agent) Start(ctx context.Context) error {
 	// Start gRPC server.
 	if err := a.listenAndServeGRPC(); err != nil {
 		return err
+	}
+
+	//if a.config.TLSAutoReload {
+	if true {
+		go func() {
+			watcher, err := fsnotify.NewWatcher()
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer watcher.Close()
+
+			done := make(chan bool)
+			go func() {
+				for {
+					select {
+					case event, ok := <-watcher.Events:
+						if !ok {
+							return
+						}
+						a.logger.Debug("watcher event", "event", event)
+						//if event.Op&fsnotify.Write == fsnotify.Write {
+							a.logger.Info("file modified", "file", event.Name)
+							if err := a.tlsConfigurator.Update(a.config.ToTLSUtilConfig()); err != nil {
+								a.logger.Error("reloading tls config", "err", err)
+							}
+							a.logger.Info("tls config reloaded")
+						//}
+					case err, ok := <-watcher.Errors:
+						if !ok {
+							return
+						}
+						log.Println("error:", err)
+					}
+				}
+			}()
+
+			// todo: if paths change, reconfigure watches.
+			// todo: watch capath
+			tlsConfig := a.config.ToTLSUtilConfig()
+			for _, f := range []string{tlsConfig.CertFile, tlsConfig.KeyFile, tlsConfig.CAFile}{
+				err = watcher.Add(f)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+			<-done
+		}()
 	}
 
 	// register watches
