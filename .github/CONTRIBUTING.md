@@ -1,4 +1,5 @@
 # Contributing to Consul
+
 >**Note:** We take Consul's security and our users' trust very seriously.
 >If you believe you have found a security issue in Consul, please responsibly
 >disclose by contacting us at security@hashicorp.com.
@@ -14,7 +15,9 @@ talk to us! A great way to do this is in issues themselves. When you want to
 work on an issue, comment on it first and tell us the approach you want to take.
 
 ## Getting Started
+
 ### Some Ways to Contribute
+
 * Report potential bugs.
 * Suggest product enhancements.
 * Increase our test coverage.
@@ -24,7 +27,8 @@ work on an issue, comment on it first and tell us the approach you want to take.
 are deployed from this repo.
 * Respond to questions about usage on the issue tracker or the Consul section of the [HashiCorp forum]: (https://discuss.hashicorp.com/c/consul)
 
-### Reporting an Issue:
+### Reporting an Issue
+
 >Note: Issues on GitHub for Consul are intended to be related to bugs or feature requests. 
 >Questions should be directed to other community resources such as the: [Discuss Forum](https://discuss.hashicorp.com/c/consul/29), [FAQ](https://www.consul.io/docs/faq.html), or [Guides](https://www.consul.io/docs/guides/index.html).
 
@@ -53,42 +57,68 @@ issue. Stale issues will be closed.
 
 4. The issue is addressed in a pull request or commit. The issue will be
    referenced in the commit message so that the code that fixes it is clearly
-   linked.
+   linked. Any change a Consul user might need to know about will include a
+   changelog entry in the PR.
 
 5. The issue is closed.
 
-## Building Consul
-
-If you wish to work on Consul itself, you'll first need [Go](https://golang.org)
-installed (The version of Go should match the one of our [CI config's](https://github.com/hashicorp/consul/blob/main/.circleci/config.yml) Go image).
-
-
-Next, clone this repository and then run `make dev`. In a few moments, you'll have a working
-`consul` executable in `consul/bin` and `$GOPATH/bin`:
-
->Note: `make dev` will build for your local machine's os/architecture. If you wish to build for all os/architecture combinations use `make`.
-
 ## Making Changes to Consul
+
+### Prerequisites
+
+If you wish to work on Consul itself, you'll first need the [Go](https://golang.org)
+language installed (The version of Go should match the one of our
+[CI config's](https://github.com/hashicorp/consul/blob/main/.circleci/config.yml) Go image).
+
+### Forking the Consul Repo
 
 The first step to making changes is to fork Consul. Afterwards, the easiest way 
 to work on the fork is to set it as a remote of the Consul project:
 
-1. Navigate to `$GOPATH/src/github.com/hashicorp/consul`
-2. Rename the existing remote's name: `git remote rename origin upstream`.
-3. Add your fork as a remote by running
-   `git remote add origin <github url of fork>`. For example:
-   `git remote add origin https://github.com/myusername/consul`.
-4. Checkout a feature branch: `git checkout -t -b new-feature`
-5. Make changes
-6. Push changes to the fork when ready to submit PR:
+1. Clone the `hashicorp/consul` repository and place the local copy at
+   `$GOPATH/src/github.com/hashicorp/consul`
+2. Navigate to `$GOPATH/src/github.com/hashicorp/consul`
+3. Make `hashicorp/consul` the `upstream` remote rather than `origin`:
+   `git remote rename origin upstream`.
+4. Add your fork as the `origin` remote. For example:
+   `git remote add origin https://github.com/myusername/consul`
+5. Checkout a feature branch: `git checkout -t -b new-feature`
+6. [Make changes](#modifying-the-code)
+7. Push changes to the fork when ready to [submit a PR](#submitting-a-pull-request):
    `git push -u origin new-feature`
 
 By following these steps you can push to your fork to create a PR, but the code on disk still
-lives in the spot where the go cli tools are expecting to find it.
+lives in the spot where the Go CLI tools are expecting to find it.
 
->Note: If you make any changes to the code, run `gofmt -s -w` to automatically format the code according to Go standards.
+### Building Consul
 
-## Testing
+To build Consul, run `make dev`. In a few moments, you'll have a working
+`consul` executable in `consul/bin` and `$GOPATH/bin`:
+
+>Note: `make dev` will build for your local machine's os/architecture. If you wish to build for all os/architecture combinations, use `make`.
+
+### Modifying the Code
+
+#### Code Formatting
+
+Go provides [tooling to apply consistent code formatting](https://golang.org/doc/effective_go#formatting)
+so you don't have to worry about it.
+
+If you make any changes to the code, run `gofmt -s -w` to automatically format the code according to Go standards.
+
+#### Updating Go Module Dependencies
+
+If a dependency is added or change, run `go mod tidy` to update `go.mod` and `go.sum`.
+
+#### Developer Documentation
+
+Developer-focused documentation about the Consul code base is under [./docs],
+and godoc package document can be read at [pkg.go.dev/github.com/hashicorp/consul].
+
+[./docs]: ../docs/README.md
+[pkg.go.dev/github.com/hashicorp/consul]: https://pkg.go.dev/github.com/hashicorp/consul
+
+### Testing
 
 During development, it may be more convenient to check your work-in-progress by running only the tests which you expect to be affected by your changes, as the full test suite can take several minutes to execute. [Go's built-in test tool](https://golang.org/pkg/cmd/go/internal/test/) allows specifying a list of packages to test and the `-run` option to only include test names matching a regular expression.
 The `go test -short` flag can also be used to skip slower tests.
@@ -99,22 +129,78 @@ Examples (run from the repository root):
 
 When a pull request is opened CI will run all tests and lint to verify the change.
 
-## Go Module Dependencies
+### Submitting a Pull Request
 
-If a dependency is added or change, run `go mod tidy` to update `go.mod` and `go.sum`.
+Before writing any code, we recommend:
+- Create a Github issue if none already exists for the code change you'd like to make.
+- Write a comment on the Github issue indicating you're interested in contributing so
+maintainers can provide their perspective if needed.
 
-## Developer Documentation
+When you're ready to submit a pull request:
+1. Review the [list of checklists](#checklists) for common changes and follow any
+   that apply to your work.
+2. Include evidence that your changes work as intended (e.g., add/modify unit tests).
+3. Open the PR from your fork against base repository `hashicorp/consul` and branch `main`.
+   - [Link the PR to its associated issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue).
+4. Include any specific questions that you have for the reviewer in the PR description
+   or as a PR comment in Github.
+   - If there's anything you find the need to explain or clarify in the PR, consider
+   whether that explanation should be added in the source code as comments.
+   - You can submit a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/)
+   if your changes aren't finalized but would benefit from in-process feedback.
+5. If there's any reason Consul users might need to know about this change,
+   [add a changelog entry](#adding-a-changelog-entry).
+6. After you submit, the Consul maintainers team needs time to carefully review your
+   contribution and ensure it is production-ready, considering factors such as: security,
+   backwards-compatibility, potential regressions, etc.
+7. After you address Consul maintainer feedback and the PR is approved, do the honors
+   of clicking the Github merge button!
 
-Documentation about the Consul code base is under [./docs],
-and godoc package document can be read at [pkg.go.dev/github.com/hashicorp/consul].
+#### Checklists
 
-[./docs]: ../docs/README.md
-[pkg.go.dev/github.com/hashicorp/consul]: https://pkg.go.dev/github.com/hashicorp/consul
+Some common changes that many PRs require are documented through checklists as
+`checklist-*.md` files in [docs/](../docs/), including:
+- [Adding config fields](../docs/config/checklist-adding-config-fields.md)
 
-### Checklists
+#### Adding a Changelog Entry
 
-Some common changes that many PRs require such as adding config fields, are
-documented through checklists.
+Any change that a Consul user might need to know about should have a changelog entry.
 
-Please check in [docs/](../docs/) for any `checklist-*.md` files that might help
-with your change.
+What doesn't need a changelog entry?
+- Docs changes
+- Typos fixes, unless they are in a public-facing API
+- Code changes we are certain no Consul users will need to know about
+
+To include a [changelog entry](../.changelog) in a PR, commit a text file
+named `.changelog/<PR#>.txt`, where `<PR#>` is the number associated with the open
+PR in Github. The text file should describe the changes in the following format:
+
+````
+```release-note:<change type>
+<code area>: <brief description of the improvement you made here>
+```
+````
+
+Valid values for `<change type>` include:
+- `feature`: for the addition of a new feature
+- `improvement`: for an improvement (not a bug fix) to an existing feature
+- `bug`: for a bug fix
+- `security`: for any Common Vulnerabilities and Exposures (CVE) resolutions
+- `breaking-change`: for any change that is not fully backwards-compatible
+- `deprecation`: for functionality which is now marked for removal in a future release
+
+`<code area>` is meant to categorize the functionality affected by the change.
+Some common values are:
+- `checks`: related to node or service health checks
+- `cli`: related to the command-line interface and its commands
+- `config`: related to configuration changes (e.g., adding a new config option)
+- `connect`: catch-all for the Connect subsystem that provides service mesh functionality
+  if no more specific `<code area>` applies
+- `http`: related to the HTTP API interface and its endpoints
+- `dns`: related to DNS functionality
+- `ui`: any change related to the built-in Consul UI (`website/` folder)
+
+Look in the [`.changelog/`](../.changelog) folder for examples of existing changelog entries.
+
+If a PR deserves multiple changelog entries, just add multiple entries separated by a newline
+in the format described above to the `.changelog/<PR#>.txt` file.
