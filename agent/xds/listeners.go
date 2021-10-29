@@ -420,6 +420,24 @@ func parseCheckPath(check structs.CheckType) (structs.ExposePath, error) {
 
 // listenersFromSnapshotGateway returns the "listener" for a terminating-gateway or mesh-gateway service
 func (s *ResourceGenerator) listenersFromSnapshotGateway(cfgSnap *proxycfg.ConfigSnapshot) ([]proto.Message, error) {
+	var resources []proto.Message
+
+	listenerOverrides := make(map[string]*envoy_listener_v3.Listener, 0)
+	for k, rawListener := range cfgSnap.ServiceMeta {
+		if !strings.HasPrefix(k, structs.MetaTerminatingListener) {
+			continue
+		}
+		name := k[len(structs.MetaTerminatingListener)+1:]
+
+		l, err := makeListenerFromUserConfig(rawListener)
+
+		if err != nil {
+			return resources, err
+		}
+
+		listenerOverrides[name] = l
+	}
+
 	cfg, err := ParseGatewayConfig(cfgSnap.Proxy.Config)
 	if err != nil {
 		// Don't hard fail on a config typo, just warn. The parse func returns
@@ -434,7 +452,6 @@ func (s *ResourceGenerator) listenersFromSnapshotGateway(cfgSnap *proxycfg.Confi
 	}
 	addrs := make([]namedAddress, 0)
 
-	var resources []proto.Message
 	if !cfg.NoDefaultBind {
 		addr := cfgSnap.Address
 		if addr == "" {
@@ -488,7 +505,13 @@ func (s *ResourceGenerator) listenersFromSnapshotGateway(cfgSnap *proxycfg.Confi
 
 		switch cfgSnap.Kind {
 		case structs.ServiceKindTerminatingGateway:
-			l, err = s.makeTerminatingGatewayListener(cfgSnap, a.name, a.Address, a.Port)
+			for _, svc := range cfgSnap.TerminatingGateway.ValidServices() {
+				if override, ok := listenerOverrides[svc.Name]; ok {
+					resources = append(resources, override)
+				}
+			}
+
+			l, err = s.makeTerminatingGatewayListener(cfgSnap, a.name, a.Address, a.Port, listenerOverrides)
 			if err != nil {
 				return nil, err
 			}
@@ -944,6 +967,7 @@ func (s *ResourceGenerator) makeTerminatingGatewayListener(
 	cfgSnap *proxycfg.ConfigSnapshot,
 	name, addr string,
 	port int,
+	overrides map[string]*envoy_listener_v3.Listener,
 ) (*envoy_listener_v3.Listener, error) {
 	l := makePortListener(name, addr, port, envoy_core_v3.TrafficDirection_INBOUND)
 
@@ -956,6 +980,10 @@ func (s *ResourceGenerator) makeTerminatingGatewayListener(
 	// Make a FilterChain for each linked service
 	// Match on the cluster name,
 	for _, svc := range cfgSnap.TerminatingGateway.ValidServices() {
+		if _, ok := overrides[svc.Name]; ok {
+			continue
+		}
+
 		clusterName := connect.ServiceSNI(svc.Name, "", svc.NamespaceOrDefault(), svc.PartitionOrDefault(), cfgSnap.Datacenter, cfgSnap.Roots.TrustDomain)
 
 		// Resolvers are optional.
