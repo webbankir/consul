@@ -1,4 +1,4 @@
-project_name: terraform-provider-uptimerobot
+project_name: consul
 
 builds:
   - env:
