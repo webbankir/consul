@@ -23,8 +23,8 @@ require (
 	github.com/envoyproxy/go-control-plane v0.9.5
 	github.com/frankban/quicktest v1.11.0 // indirect
 	github.com/gogo/protobuf v1.3.2
-	github.com/golang/protobuf v1.3.5
-	github.com/google/go-cmp v0.5.2
+	github.com/golang/protobuf v1.5.0
+	github.com/google/go-cmp v0.5.5
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/gofuzz v1.2.0
 	github.com/google/pprof v0.0.0-20210601050228-01bbb1931b22
@@ -35,7 +35,6 @@ require (
 	github.com/hashicorp/go-checkpoint v0.5.0
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-connlimit v0.3.0
-	github.com/hashicorp/go-discover v0.0.0-20210818145131-c573d69da192
 	github.com/hashicorp/go-hclog v0.14.1
 	github.com/hashicorp/go-memdb v1.3.1
 	github.com/hashicorp/go-msgpack v0.5.5
@@ -79,6 +78,7 @@ require (
 	github.com/ryanuber/columnize v2.1.0+incompatible
 	github.com/shirou/gopsutil/v3 v3.20.10
 	github.com/stretchr/testify v1.6.1
+	github.com/webbankir/go-discover v0.0.0-20211102075633-5e50d032e6fc
 	go.opencensus.io v0.22.0 // indirect
 	go.uber.org/goleak v1.1.10
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
@@ -89,8 +89,8 @@ require (
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e
 	google.golang.org/api v0.9.0 // indirect
 	google.golang.org/appengine v1.6.0 // indirect
-	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
-	google.golang.org/grpc v1.25.1
+	google.golang.org/genproto v0.0.0-20200323114720-3f67cca34472
+	google.golang.org/grpc v1.28.0
 	gopkg.in/square/go-jose.v2 v2.5.1
 	gotest.tools/v3 v3.0.3
 	k8s.io/api v0.18.2
